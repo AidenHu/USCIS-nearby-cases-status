@@ -1,4 +1,5 @@
-import urllib2
+import urllib.request
+import urllib.parse
 import sys
 import ssl
 import bs4
@@ -7,11 +8,20 @@ import pandas as pd
 
 def _get_content(case_number):
     url = 'https://egov.uscis.gov/casestatus/mycasestatus.do'
-    num = 'appReceiptNum=' + case_number
-    request = urllib2.Request(url, data=num)
-    ctx = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
-    content = urllib2.urlopen(request, context=ctx)
-    return content.read()
+    values = {'appReceiptNum': case_number}
+    data = urllib.parse.urlencode(values)
+    data = data.encode('ascii')
+    request = urllib.request.Request(url, data)
+    with urllib.request.urlopen(request) as response:
+        the_page = response.read()
+
+    return the_page
+    
+##    num = 'appReceiptNum=' + case_number
+##    request = urllib.request.Request(url, data=urllib.parse.urlencode(num))
+##    ctx = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
+##    content = urllib.request.urlopen(request, context=ctx)
+##    return content.read()
 
 
 def _fetch_case_info(content):
@@ -36,11 +46,11 @@ def main(argv):
     
 
 
-start = 'XXXXXXX'
-change = 410
+start = 'WAC1720550'
+change = 545
 i=0
 
-while i <=300:
+while i <= 400:
     main(start+str(change))
     change=change+1
     i=i+1
